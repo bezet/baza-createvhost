@@ -4,7 +4,7 @@ import os, sys, getopt, json
 # import subprocess, webbrowser
 
 
-def createConfigFile():
+def createConfigFile(configPath):
 
     config = [
         '{',
@@ -15,12 +15,12 @@ def createConfigFile():
 
     config = '\n'.join(config)
 
-    configFile = open('config.json', 'w')
+    configFile = open(configPath, 'w')
     configFile.write(config)
     configFile.close()
 
     print("Provide paths to your hosts and httpd-vhosts.conf files.")
-    editFile('config.json')
+    editFile(configPath)
 
 
 def editFile(filePath, editor="notepad.exe"):
@@ -92,7 +92,7 @@ def usage():
 def main(argv):
 
     if len(argv) == 0:
-        print("Rerun script with arguments and/or options.")
+        print("Rerun script with apropriate options and arguments.")
         usage()
         sys.exit()
 
@@ -101,6 +101,9 @@ def main(argv):
     except getopt.GetoptError:
         usage()
         sys.exit(2)
+
+    scriptDirectory = os.path.dirname(os.path.abspath(__file__))
+    configPath = os.path.join(scriptDirectory, 'config.json')
 
     hostname = None
     projectDirectory = None
@@ -111,10 +114,10 @@ def main(argv):
             sys.exit()
 
         if opt in ('-c', '--config'):
-            if not os.path.isfile('./config.json'):
-                createConfigFile()
+            if not os.path.isfile(configPath):
+                createConfigFile(configPath)
             else:
-                editFile('config.json')
+                editFile(configPath)
 
             print("Config is set.")
 
@@ -140,12 +143,12 @@ def main(argv):
         usage()
         sys.exit()
 
-    if not os.path.isfile('./config.json'):
-        createConfigFile()
+    if not os.path.isfile(configPath):
+        createConfigFile(configPath)
 
     while 1:
         try:
-            with open('config.json') as configFile:
+            with open(configPath) as configFile:
                 config = json.load(configFile)
 
             hostsFile = open(config['hostsFile'], 'a')
